@@ -59,6 +59,51 @@ Ejecuta el script. Este descargará el código más reciente de los repositorios
 ./start.sh
 ```
 
+### 🗄️ Diagrama Entidad-Relación (ERD)
+
+A continuación, se detalla el esquema de la base de datos centralizada, mostrando cómo interactúan los dominios de cada microservicio:
+
+````mermaid
+erDiagram
+    users ||--o{ products : "manages"
+    users ||--o{ orders : "places"
+    orders ||--|{ order_items : "contains"
+    products ||--o{ order_items : "included in"
+
+    users {
+        uuid id PK
+        string name
+        string email UK
+        string passwordHash
+        timestamp createdAt
+    }
+
+    products {
+        uuid id PK
+        string userId FK
+        string name
+        text description
+        decimal price
+        int stock
+        text image
+    }
+
+    orders {
+        uuid id PK
+        string userId FK
+        string customerName
+        decimal totalAmount
+        timestamp createdAt
+    }
+
+    order_items {
+        uuid id PK
+        string productId FK
+        int quantity
+        decimal unitPrice
+        uuid orderId FK
+    }
+
 ### Solución de Problemas
 
 - Error `port is already allocated`: Significa que ya tienes un servicio (usualmente Postgres en el 5432) corriendo en tu máquina fuera de Docker. Apágalo antes de correr el script.
@@ -69,4 +114,4 @@ Ejecuta el script. Este descargará el código más reciente de los repositorios
 
 ```bash
 docker-compose down -v
-```
+````
