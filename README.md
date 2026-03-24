@@ -63,7 +63,7 @@ Ejecuta el script. Este descargará el código más reciente de los repositorios
 
 A continuación, se detalla el esquema de la base de datos centralizada, mostrando cómo interactúan los dominios de cada microservicio:
 
-````mermaid
+```mermaid
 erDiagram
     users ||--o{ products : "manages"
     users ||--o{ orders : "places"
@@ -103,6 +103,7 @@ erDiagram
         decimal unitPrice
         uuid orderId FK
     }
+```
 
 ### Solución de Problemas
 
@@ -114,4 +115,4 @@ erDiagram
 
 ```bash
 docker-compose down -v
-````
+`````
