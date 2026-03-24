@@ -1,0 +1,109 @@
+
+services:
+  # 1. Base de Datos Central
+  postgres:
+    image: postgres:15-alpine
+    container_name: linktic-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: linktic_user
+      POSTGRES_PASSWORD: linktic_password
+      POSTGRES_DB: linktic_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - linktic-network
+
+  # 2. Auth Service
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: linktic-auth
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - JWT_SECRET=linktic-super-secret-key
+      - DB_HOST=linktic-postgres
+      - DB_PORT=5432
+      - DB_USERNAME=linktic_user
+      - DB_PASSWORD=linktic_password
+      - DB_NAME=linktic_db
+    depends_on:
+      - postgres
+    networks:
+      - linktic-network
+
+  # 3. Product Service
+  product-service:
+    build:
+      context: ./product-service
+    container_name: linktic-products
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - JWT_SECRET=linktic-super-secret-key
+      - DB_HOST=linktic-postgres
+      - DB_PORT=5432
+      - DB_USERNAME=linktic_user
+      - DB_PASSWORD=linktic_password
+      - DB_NAME=linktic_db
+    depends_on:
+      - postgres
+    networks:
+      - linktic-network
+
+  # 4. Order Service
+  order-service:
+    build:
+      context: ./order-service
+    container_name: linktic-orders
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - JWT_SECRET=linktic-super-secret-key
+      - API_GATEWAY_URL=http://api-gateway:8080
+      - DB_HOST=linktic-postgres
+      - DB_PORT=5432
+      - DB_USERNAME=linktic_user
+      - DB_PASSWORD=linktic_password
+      - DB_NAME=linktic_db
+    depends_on:
+      - postgres
+      - api-gateway
+    networks:
+      - linktic-network
+
+  # 5. API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: linktic-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - JWT_SECRET=linktic-super-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:3002
+      - PRODUCTS_SERVICE_URL=http://product-service:3003
+      - ORDERS_SERVICE_URL=http://order-service:3001
+    depends_on:
+      - auth-service
+      - product-service
+    networks:
+      - linktic-network
+
+networks:
+  linktic-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
