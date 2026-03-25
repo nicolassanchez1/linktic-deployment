@@ -39,7 +39,7 @@ Sigue estos pasos para desplegar toda la plataforma en tu máquina local.
 Abre tu terminal y ejecuta:
 
 ```bash
-git clone [https://github.com/nicolassanchez1/linktic-deployment.git](https://github.com/nicolassanchez1/linktic-deployment.git)
+git clone https://github.com/nicolassanchez1/linktic-deployment.git
 cd linktic-deployment
 ```
 
